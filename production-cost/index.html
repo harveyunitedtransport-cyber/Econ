@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Production Cost</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one slide at a time on a faint graph-paper ground, like an economics exercise sheet; speaker text slides up below. */
+:root{
+  --paper:#f3f6f9; --grid:#dfe6ee; --ink:#14233a; --muted:#56657a;
+  --accent:#d9822b; --line:#2f6db5; --card:#ffffff; --green:#2f8a5b;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Source Serif 4",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f1722; --grid:#1f2b3a; --ink:#e7edf4; --muted:#9aa9bb;
+  --accent:#f0a04b; --line:#6ea8ec; --card:#162130; --green:#5cc28d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1722; --grid:#1f2b3a; --ink:#e7edf4; --muted:#9aa9bb;
+  --accent:#f0a04b; --line:#6ea8ec; --card:#162130; --green:#5cc28d; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:14px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.top b{color:var(--ink);font-weight:500}
+
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:auto;padding-block:8px}
+.slide{width:100%;max-width:1040px;display:none;flex-direction:column;gap:22px;padding-block:8px;margin:auto}
+.slide.on{display:flex;animation:in .35s ease-out}
+@keyframes in{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.slide.on{animation:none}}
+
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+h1,h2{font-family:var(--display);font-weight:800;line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1{font-size:clamp(44px,8.5vw,104px)}
+h2{font-size:clamp(30px,4.8vw,54px)}
+h3{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 4px}
+p{margin:0;max-width:62ch}
+.lead{font-size:clamp(18px,2vw,22px);color:var(--muted)}
+.def{border-left:3px solid var(--accent);padding:6px 0 6px 16px;font-size:clamp(19px,2.2vw,24px);max-width:58ch}
+.f{font-family:var(--mono);font-size:clamp(17px,2vw,21px);color:var(--line);font-weight:500}
+
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.grid>div{background:var(--card);border:1px solid var(--grid);border-radius:6px;padding:16px;min-width:0}
+.grid small{display:block;font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.two{display:grid;gap:28px;grid-template-columns:1.1fr 1fr;align-items:center}
+.two>*{min-width:0}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--grid);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:9px 12px;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+td.hl{color:var(--accent);font-weight:600}
+.cmp td,.cmp th{text-align:left;white-space:normal}
+.cmp td:first-child{font-family:var(--display);font-weight:700}
+
+.qs{display:grid;gap:12px}
+.qs div{display:flex;gap:16px;align-items:baseline}
+.qs span{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,44px);color:var(--line);min-width:1.4ch}
+
+.byline{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.mark{color:var(--accent)}
+.note{font-size:15px;color:var(--muted)}
+svg{max-width:100%;height:auto}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+
+.end{align-items:center}
+.slide.end.on{position:fixed;inset:0;z-index:50;max-width:none;margin:0;padding:0;background:#000;display:flex;align-items:center;justify-content:center}
+.meme{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.snd{position:absolute;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font:600 16px var(--mono);color:#fff;background:#d9822b;border:0;border-radius:999px;padding:14px 26px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.back{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));font:500 18px var(--mono);color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:6px;padding:8px 14px;cursor:pointer;opacity:.5}
+.back:hover{opacity:1}
+.snd:focus-visible{outline:2px solid var(--line);outline-offset:3px}
+.party{position:relative;width:min(340px,100%);height:280px;display:flex;justify-content:center;align-items:flex-end}
+.floor{position:absolute;bottom:4px;left:50%;width:260px;max-width:100%;height:46px;transform:translateX(-50%);border-radius:50%;
+  background:conic-gradient(var(--accent),var(--line),var(--green),var(--accent));opacity:.35;animation:disco 2s linear infinite}
+.bounce{position:relative;animation:bob .47s ease-in-out infinite alternate}
+.spin{animation:turn 1.9s linear infinite}
+.spin svg{display:block}
+.arm{transform-box:fill-box;animation:wave .47s ease-in-out infinite alternate}
+.arm.l{transform-origin:100% 100%}.arm.r{transform-origin:0 100%;animation-delay:-.47s}
+.tail{transform-box:fill-box;transform-origin:0 100%;animation:wag .47s ease-in-out infinite alternate}
+.nt{position:absolute;bottom:90px;font-size:30px;color:var(--accent);opacity:0;animation:float 2.4s ease-out infinite}
+.n1{left:12%}.n2{left:78%;animation-delay:.6s;color:var(--line)}.n3{left:22%;animation-delay:1.2s;color:var(--green)}.n4{left:70%;animation-delay:1.8s}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+@keyframes turn{0%{transform:scaleX(1)}25%{transform:scaleX(.08)}50%{transform:scaleX(-1)}75%{transform:scaleX(.08)}100%{transform:scaleX(1)}}
+@keyframes wave{from{transform:rotate(-14deg)}to{transform:rotate(18deg)}}
+@keyframes wag{from{transform:rotate(-10deg)}to{transform:rotate(12deg)}}
+@keyframes disco{to{filter:hue-rotate(360deg)}}
+@keyframes float{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-150px) rotate(20deg)}}
+@media (prefers-reduced-motion:reduce){.spin,.floor,.nt{animation:none}.nt{opacity:1}.bounce,.arm,.tail{animation-duration:1.2s}}
+.bar{display:flex;align-items:center;gap:10px;padding-block:12px}
+.bar button{font:500 13px var(--mono);color:var(--ink);background:var(--card);border:1px solid var(--grid);border-radius:4px;padding:9px 14px;cursor:pointer}
+.bar button:hover{border-color:var(--line)}
+.bar button:focus-visible{outline:2px solid var(--line);outline-offset:2px}
+.bar .prog{flex:1;height:3px;background:var(--grid);border-radius:2px;overflow:hidden}
+.bar .prog i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.notes{background:var(--card);border:1px solid var(--grid);border-radius:6px;padding:14px 16px;margin-bottom:12px;max-height:34vh;overflow:auto;font-size:16px}
+.notes b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px;font-weight:500}
+</style>
+
+<div class="top"><span><b>Microeconomics</b> · Topic 7</span><span id="count">1 / 10</span></div>
+
+<main class="stage" id="stage">
+
+<section class="slide" data-n="Good morning everyone. My name is Saidabrorxon, and today I will present topic seven of our microeconomics course: production cost. Every firm, from a small bakery to a large factory, must know its costs, because costs decide how much to produce and what price to charge. In this presentation I will explain the main types of costs and how they change with output.">
+  <div class="eyebrow">Topic 7 · Microeconomics</div>
+  <h1>Production <span class="mark">Cost</span></h1>
+  <p class="lead">Fixed and variable costs, average and marginal cost, and how costs behave in the short run and the long run.</p>
+  <div class="byline">AXMADOV SAIDABRORXON</div>
+</section>
+
+<section class="slide" data-n="First, what is cost in economics? Accountants count only explicit costs, the money the firm actually pays: wages, rent, materials. Economists also count implicit costs, the opportunity cost of the owner's own time and money. For example, if I run my own business instead of working for a salary of 5 million sum, that lost salary is an implicit cost. So economic profit equals revenue minus both explicit and implicit costs, and it is usually smaller than accounting profit.">
+  <div class="eyebrow">01 · What counts as cost</div>
+  <h2>Explicit and implicit costs</h2>
+  <div class="grid">
+    <div><small>Explicit costs</small>Money actually paid: wages, rent, materials, electricity.</div>
+    <div><small>Implicit costs</small>Opportunity cost of the owner's own time, money and property.</div>
+  </div>
+  <p class="f">Accounting profit = Revenue − Explicit costs</p>
+  <p class="f">Economic profit = Revenue − Explicit − Implicit costs</p>
+</section>
+
+<section class="slide" data-n="Economists divide time into two periods. The short run is a period when at least one input is fixed. For example, a bakery cannot build a new building in one week, but it can hire more workers or buy more flour. The long run is a period long enough for the firm to change all inputs, including the size of the factory. This is not a fixed number of months; it depends on the industry.">
+  <div class="eyebrow">02 · Time horizon</div>
+  <h2>Short run vs long run</h2>
+  <div class="tbl"><table class="cmp">
+    <tr><th></th><th>Short run</th><th>Long run</th></tr>
+    <tr><td>Inputs</td><td>At least one input is fixed</td><td>All inputs are variable</td></tr>
+    <tr><td>Bakery example</td><td>Same oven and building, more workers and flour</td><td>Can build a second bakery or buy bigger ovens</td></tr>
+    <tr><td>Costs</td><td>Fixed + variable</td><td>All costs are variable</td></tr>
+  </table></div>
+</section>
+
+<section class="slide" data-n="In the short run, total cost has two parts. Fixed costs do not change with output: rent, insurance, the loan payment for equipment. The firm pays them even if it produces nothing. Variable costs change with output: flour, electricity, wages of extra workers. If the bakery bakes more bread, variable costs rise. Total cost is simply fixed cost plus variable cost.">
+  <div class="eyebrow">03 · Short-run costs</div>
+  <h2>Fixed and variable costs</h2>
+  <div class="grid">
+    <div><small>Fixed cost · FC</small><h3>Do not change with output</h3>Rent, insurance, equipment loan. Paid even when Q = 0.</div>
+    <div><small>Variable cost · VC</small><h3>Change with output</h3>Flour, electricity, wages for extra workers.</div>
+  </div>
+  <p class="f">TC = FC + VC</p>
+</section>
+
+<section class="slide" data-n="Here is a simple example of a bakery. Output Q is measured in batches of bread, and costs are in thousand sum. The fixed cost is always 100, even at zero output. Variable cost grows as output grows. Total cost is the sum of the two. Look at the marginal cost column: it first falls from 50 to 30, and then rises to 80. I will explain why on the next slides.">
+  <div class="eyebrow">04 · Example</div>
+  <h2>A bakery's costs</h2>
+  <div class="tbl"><table>
+    <tr><th>Q, batches</th><th>FC</th><th>VC</th><th>TC</th><th>MC</th><th>ATC</th></tr>
+    <tr><td>0</td><td>100</td><td>0</td><td>100</td><td>–</td><td>–</td></tr>
+    <tr><td>1</td><td>100</td><td>50</td><td>150</td><td>50</td><td>150</td></tr>
+    <tr><td>2</td><td>100</td><td>90</td><td>190</td><td>40</td><td>95</td></tr>
+    <tr><td>3</td><td>100</td><td>120</td><td>220</td><td>30</td><td>73.3</td></tr>
+    <tr><td>4</td><td>100</td><td>160</td><td>260</td><td>40</td><td>65</td></tr>
+    <tr><td>5</td><td>100</td><td>220</td><td>320</td><td>60</td><td class="hl">64</td></tr>
+    <tr><td>6</td><td>100</td><td>300</td><td>400</td><td>80</td><td>66.7</td></tr>
+  </table></div>
+  <p class="note">Costs in thousand sum. Lowest ATC is at Q = 5.</p>
+</section>
+
+<section class="slide" data-n="Average cost is cost per unit of output. Average fixed cost is fixed cost divided by quantity. It always falls, because the same 100 thousand is spread over more units. Average variable cost is variable cost divided by quantity. Average total cost is total cost divided by quantity, and it equals AFC plus AVC. In our example, at five batches ATC is 320 divided by 5, which is 64 thousand sum per batch.">
+  <div class="eyebrow">05 · Cost per unit</div>
+  <h2>Average costs</h2>
+  <div class="grid">
+    <div><small>AFC</small><p class="f">FC ÷ Q</p>Always falls as output grows.</div>
+    <div><small>AVC</small><p class="f">VC ÷ Q</p>Falls first, then rises.</div>
+    <div><small>ATC</small><p class="f">TC ÷ Q</p>Equals AFC + AVC. U-shaped.</div>
+  </div>
+  <p class="note">Example: at Q = 5, ATC = 320 ÷ 5 = 64 thousand sum per batch.</p>
+</section>
+
+<section class="slide" data-n="Marginal cost is the most important concept in this topic. It is the extra cost of producing one more unit: the change in total cost divided by the change in quantity. Why does marginal cost first fall and then rise? At first, new workers specialize and the oven is used better, so each batch is cheaper. But the oven and the kitchen are fixed, so after some point workers get in each other's way. This is the law of diminishing marginal returns, and it makes marginal cost rise.">
+  <div class="eyebrow">06 · The extra unit</div>
+  <h2>Marginal cost</h2>
+  <p class="def">Marginal cost is the <b>additional cost</b> of producing one more unit of output.</p>
+  <p class="f">MC = ΔTC ÷ ΔQ</p>
+  <div class="grid">
+    <div><small>Why MC falls first</small>Workers specialize and the fixed oven is used more fully.</div>
+    <div><small>Why MC rises later</small>Diminishing marginal returns: too many workers share one oven.</div>
+  </div>
+</section>
+
+<section class="slide" data-n="If we draw these costs on a graph, we get the typical cost curves. AFC falls all the time. AVC and ATC are U-shaped. The gap between ATC and AVC is AFC, so it gets smaller as output grows. The key rule: the marginal cost curve crosses AVC and ATC at their lowest points. The logic is like grades: if your next grade is below your average, the average falls; if it is above, the average rises.">
+  <div class="eyebrow">07 · On a graph</div>
+  <h2>Short-run cost curves</h2>
+  <div class="two">
+    <svg viewBox="0 0 330 250" role="img" aria-label="Cost curves: MC crosses AVC and ATC at their minimum points; AFC falls">
+      <line x1="40" y1="215" x2="305" y2="215" stroke="var(--ink)" stroke-width="1.5"/>
+      <line x1="40" y1="215" x2="40" y2="12" stroke="var(--ink)" stroke-width="1.5"/>
+      <path d="M60 110 C 110 175, 180 195, 300 205" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>
+      <path d="M65 120 C 100 145, 130 150, 160 150 S 240 135, 300 95" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+      <path d="M65 35 C 110 100, 150 116, 190 116 S 270 95, 300 60" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+      <path d="M55 165 C 85 195, 130 185, 160 150 S 230 70, 280 25" fill="none" stroke="var(--accent)" stroke-width="3"/>
+      <circle cx="160" cy="150" r="4.5" fill="var(--ink)"/>
+      <circle cx="190" cy="116" r="4.5" fill="var(--ink)"/>
+      <text x="284" y="24" style="fill:var(--accent);font-weight:500">MC</text>
+      <text x="303" y="62" style="fill:var(--line);font-weight:500">ATC</text>
+      <text x="303" y="98" style="fill:var(--green);font-weight:500">AVC</text>
+      <text x="303" y="208">AFC</text>
+      <text x="270" y="235">Q →</text>
+      <text x="6" y="22">Cost</text>
+    </svg>
+    <div class="grid" style="grid-template-columns:1fr">
+      <div><small>AFC</small>Keeps falling as output grows.</div>
+      <div><small>AVC and ATC</small>U-shaped; the gap between them is AFC.</div>
+      <div><small>Key rule</small>MC crosses AVC and ATC at their minimum points.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-n="In the long run the firm can choose any size. The long-run average cost curve shows the lowest cost per unit for each level of output. When the firm grows and average cost falls, we have economies of scale, for example through bulk buying and specialization. When average cost does not change, we have constant returns to scale. When the firm becomes too big and hard to manage, average cost rises: these are diseconomies of scale.">
+  <div class="eyebrow">08 · Long run</div>
+  <h2>Economies of scale</h2>
+  <div class="grid">
+    <div><small>LRAC falls</small><h3>Economies of scale</h3>Bulk buying, specialization, better machines.</div>
+    <div><small>LRAC flat</small><h3>Constant returns</h3>Doubling inputs exactly doubles output.</div>
+    <div><small>LRAC rises</small><h3>Diseconomies of scale</h3>The firm is too big to manage and coordinate well.</div>
+  </div>
+</section>
+
+<section class="slide" data-n="To conclude. Economic cost includes both explicit and implicit costs. In the short run total cost equals fixed plus variable cost. Average costs show cost per unit, and marginal cost shows the cost of one more unit; it rises because of diminishing returns and crosses average cost at its minimum. In the long run, firm size affects cost through economies and diseconomies of scale. These ideas lead directly to the next topic, profit maximization.">
+  <div class="eyebrow">09 · Conclusion</div>
+  <h2>Key takeaways</h2>
+  <div class="qs">
+    <div><span>1</span><p>Economic cost = explicit + implicit costs.</p></div>
+    <div><span>2</span><p>In the short run, TC = FC + VC.</p></div>
+    <div><span>3</span><p>MC rises due to diminishing returns and crosses ATC at its minimum.</p></div>
+    <div><span>4</span><p>In the long run, size matters: economies and diseconomies of scale.</p></div>
+  </div>
+</section>
+
+<section class="slide end" data-n="Thank you for listening! I hope the topic of production cost is now clear. I am happy to answer your questions.">
+  <video id="vid" class="meme" src="hamster.mp4" loop playsinline preload="auto"></video>
+  <button id="snd" class="snd" type="button" hidden>▶ Play with sound</button>
+  <button id="back" class="back" type="button" aria-label="Back to previous slide">←</button>
+</section>
+
+</main>
+
+<div class="notes" id="notes" hidden><b>Speaker text</b><p id="ntext"></p></div>
+<div class="bar">
+  <button id="prev" type="button" aria-label="Previous slide">←</button>
+  <div class="prog"><i id="prog"></i></div>
+  <button id="nbtn" type="button">Text</button>
+  <button id="next" type="button" aria-label="Next slide">→</button>
+</div>
+
+<script>
+const S=[...document.querySelectorAll('.slide')],N=S.length;let i=0;
+const count=document.getElementById('count'),prog=document.getElementById('prog'),
+notes=document.getElementById('notes'),nt=document.getElementById('ntext');
+var show=function(k){i=Math.max(0,Math.min(N-1,k));S.forEach((s,j)=>s.classList.toggle('on',j===i));
+  count.textContent=(i+1)+' / '+N;prog.style.width=((i+1)/N*100)+'%';nt.textContent=S[i].dataset.n;
+  document.getElementById('stage').scrollTop=0;
+  if(location.hash!=='#s'+(i+1))history.replaceState(null,'','#s'+(i+1));};
+document.getElementById('prev').onclick=()=>show(i-1);
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('nbtn').onclick=()=>{notes.hidden=!notes.hidden};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')show(i+1);
+  if(e.key==='ArrowLeft')show(i-1);if(e.key==='n'||e.key==='N')notes.hidden=!notes.hidden;});
+let x0=null;addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(x0==null)return;const d=e.changedTouches[0].clientX-x0;
+  if(Math.abs(d)>50)show(d<0?i+1:i-1);x0=null});
+const vid=document.getElementById('vid'),snd=document.getElementById('snd'),endS=S[N-1];
+let fsByUs=false;
+function startEnd(){
+  vid.currentTime=0;vid.muted=false;
+  vid.play().then(()=>{snd.hidden=true}).catch(()=>{vid.muted=true;vid.play().catch(()=>{});snd.hidden=false});
+  try{if(!document.fullscreenElement&&endS.requestFullscreen){endS.requestFullscreen().then(()=>{fsByUs=true}).catch(()=>{})}}catch(e){}
+}
+snd.onclick=()=>{vid.muted=false;vid.currentTime=0;vid.play().catch(()=>{});snd.hidden=true};
+document.getElementById('back').onclick=()=>show(N-2);
+let wasEnd=false;
+const _show=show;show=function(k){_show(k);
+  if(i===N-1){if(!wasEnd)startEnd();wasEnd=true}
+  else{vid.pause();wasEnd=false;
+    if(fsByUs&&document.fullscreenElement){document.exitFullscreen().catch(()=>{})}fsByUs=false}};
+const fromHash=()=>{const m=location.hash.match(/^#s(\d+)$/);show(m?+m[1]-1:0)};
+addEventListener('hashchange',fromHash);fromHash();
+</script>
+
+</html>
